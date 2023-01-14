@@ -1,11 +1,57 @@
 from tunnel import Tunnel
-import tkinter
-from tkinter import *
+# This file is for demonstration purposes
+# I created this because I enjoy creating things in creative mode in Minecraft.
+# It works, but on my laptop when performance begins to lag from the system
+# getting hot, commands are sometimes missed or not completed, this can be compensated
+# for by adjusting the time delay between entry of commands (delay = 5)and adjusting
+# the typeWrite interval (pyautogui.typewrite(newCmds[i],interval=0.01)) in tunnel.py.
+# I have not tested with Minecraft for windows only the java edition.
+# eventually I plan on adding GUI functionality.
+# all commands are written out to a text file, however with every
+# generation of commands the file is overwritten. if you want to keep the generated
+# commands you will need to cut or copy the file(commands.txt) to an alternate location
 
-tk = tkinter
+# To use this as it sits, you simply need to fill in your own
+# start and ending coordinate values using the list provided below.
+# in the constructor Tunnel() you need to provide two commands,
+# the list of coordinate values, the two block you will be using and
+# the direction of travel. The reason for two commands is maybe your second
+# command may be a 'replace' command versus the 'fill' command.
+# and finally the direction of travel.
 
-mw = Tk(None,None,'Minecraft Calculator',1)
-mw.title("Minecraft Calculator")
+# simply run main.py and the switch to your minecraft instance and wait.
+# it will begin entering commands and executing them.
+
+# I know it's inconvient but at this time it starts you at the greatest distance
+# not your point of origin. unless your going negative like north or west.
+
+# Without any changes below this will generate a 'lined' tunnel using glass.
+# It takes your entered coordinate values and expands them by 1, then generates
+# the coordinates in 100 block increments then generates 'fill' commands.
+# The next step it generates new coordinates using the original values,
+# and once again generates new 'fill' commands to hollow out the tunnel.
+# then it generates 'teleport' commands.
+
+# keep in mind that the maximum volume that can be cleared at one time is 32768
+# I am not checking for volume limitation yet but it is calculated and displayed to you.
+# what is displayed currently, is the total volume of blocks to be cleared.
+
+# example:
+# volumetric displacement: 237666 blocks to be replaced
+
+# example:
+# teleport @p -26400 45 10
+# fill -26400 51 11 -26500 44 -1 glass
+# fill -26400 50 10 -26500 45 0 air
+# teleport @p -26500 45 10
+# fill -26500 51 11 -26600 44 -1 glass
+# fill -26500 50 10 -26600 45 0 air
+# teleport @p -26600 45 10
+# fill -26600 51 11 -26700 44 -1 glass
+# fill -26600 50 10 -26700 45 0 air
+# teleport @p -26700 45 10
+# fill -26700 51 11 -26800 44 -1 glass
+# fill -26700 50 10 -26800 45 0 air
 
 #                x   y    z     x   y    z
 #mycoordinates=[5318,113,-3326,5323,118,-3872]
@@ -15,58 +61,3 @@ mw.title("Minecraft Calculator")
 mycoordinates=[-26400, 45, 0, -30000, 50, 10]#west
 t = Tunnel('fill','fill', mycoordinates,'air','glass','w')
 
-# label_bx = tk.Label(mw,text="Beginning X")
-# input_bx = tk.Text(mw,width=10,height=1,)
-
-# label_by = tk.Label(mw,text="Beginning Y")
-# input_by = tk.Text(mw,width=10,height=1,)
-
-# label_bz = tk.Label(mw,text="Beginning Z")
-# input_bz = tk.Text(mw,width=10,height=1,)
-
-# label_ex = tk.Label(mw,text="Ending X")
-# input_ex = tk.Text(mw,width=10,height=1,)
-
-# label_ey = tk.Label(mw,text="Ending Y")
-# input_ey = tk.Text(mw,width=10,height=1,)
-
-# label_ez = tk.Label(mw,text="Ending Z")
-# input_ez = tk.Text(mw,width=10,height=1,)
-
-# label_dir = tk.Label(mw,text="Direction")
-# input_dir = tk.Text(mw,width=10,height=1,)
-
-# btn_xit = tk.Button(mw, text='Exit', width=10, height=1, command=mw.destroy,background="red")
-# btn_calc = tk.Button(mw, text='Calculate', width=10, height=1, command=mw.destroy,background="green")
-
-
-# label_bx.grid()
-# input_bx.grid()
-
-# label_by.grid()
-# input_by.grid()
-
-# label_bz.grid()
-# input_bz.grid()
-
-# label_ex.grid()
-# input_ex.grid()
-
-# label_ey.grid()
-# input_ey.grid()
-
-# label_ez.grid()
-# input_ez.grid()
-
-# btn_calc.grid()
-# btn_xit.grid()
-
-# mw.mainloop()
-
-'''beginning coordinates ending coordinates
-in the order of bx by bz ex ey ez'''
-
-
-myaxis=[20,5,2000]
-# t.calculateTunnel(mycoordinates,'n')
-# t.findLongestAxis(myaxis)
