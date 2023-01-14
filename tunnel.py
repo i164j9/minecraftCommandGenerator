@@ -25,8 +25,8 @@ class Tunnel:
         self._block2 = block2
         self._coordinates = self.sortCoordinates(coordinates)
         self._newCmds = self.calculateTunnelParameters(self._coordinates,self._directionOfTravel,self._cmd1,self._cmd2,self._block1,self._block2)
-        #time.sleep(10)
-        #self.typeWritter(self._newCmds)
+        time.sleep(10)
+        self.typeWritter(self._newCmds)
 
     def calculateLinedTunnelCoordinates(self, coordinates, dir):
         temp=[0,0,0,0,0,0]
