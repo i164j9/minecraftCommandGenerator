@@ -1,246 +1,125 @@
 import pyautogui,time
-class Tunnel:
-    _directionOfTravel=''
-    _coordinates=[]
-    _coordinates2=[]
-    _generatedCoordinates = []
-    _generatedCoordinates2 = []
-    _generatedCommands = []
-    _generatedCommands2 = []
-    _cmd1=''
-    _cmd2=''
-    _axis=[]
-    _block1=''
-    _block2=''
-    _teleportCoordinates=[]
-    _newCmds=[]
+from calculate import Calculate as c
+from poweredRail import PoweredRail as pr
 
+class Tunnel:
+    
 # x:  -x=e +x=w     y:  -y=d +y=u   z:  -z=n +z=s
-    def __init__(self, cmd1, cmd2, coordinates, block1, block2, direction) -> None:
-        self._coordinates = coordinates
+    def __init__(self, cmd1, cmd2, userCoordinates, block1, block2, direction) -> None:
+        c(userCoordinates, direction)
+        self._directionOfTravel=''
+        self._tunnelLinning = []
+        self._tunnelHollowingCoordinates = []
+        self._tunnelLinningCommands = []
+        self._tunnelLinningCoordinates = []
+        self._tunnelHollowingCommands = []
+        self._teleportCommands=[]
+        self._axis=[]
+        self._teleportCoordinates=[]
+        self._newCmds=[]
+
+        self._userCoordinates = userCoordinates
         self._directionOfTravel = direction.lower()
         self._cmd1 = cmd1
         self._cmd2 = cmd2
         self._block1 = block1
         self._block2 = block2
-        self._coordinates = self.sortCoordinates(coordinates)
-        self._newCmds = self.calculateTunnelParameters(self._coordinates,self._directionOfTravel,self._cmd1,self._cmd2,self._block1,self._block2)
-        time.sleep(10)
-        self.typeWritter(self._newCmds)
-
-    def calculateLinedTunnelCoordinates(self, coordinates, dir):
-        temp=[0,0,0,0,0,0]
-        # x:  -x=e +x=w     y:  -y=d +y=u   z:  -z=n +z=s
-        for i in range(len(coordinates)):
-            if dir == 'n' or dir == 's':
-                temp[2] = coordinates[2]
-                temp[5] = coordinates[5]
-                if i == 4 or i == 3:
-                    temp[i] = coordinates[i]-1
-                elif i == 0 or i == 1:
-                    if coordinates[i] > 0:
-                        temp[i]=coordinates[i]+1
-                    else:
-                        temp[i]=coordinates[i]-1
+        self._userCoordinates = c.sortCoordinates(self, self._userCoordinates)
+        self._volume = c.calculateVolume(self, self._userCoordinates)
+        self._longestAxis = c.findLongestAxis(self, self._axis)
         
-            elif dir == 'e' or dir == 'w':
-                temp[0] = coordinates[0]
-                temp[3] = coordinates[3]
-                if i == 4:
-                    temp[i]=coordinates[i]-1
-                elif i == 1 or i == 2 or i == 5:
-                    if coordinates[i] > 0:
-                        temp[i]=coordinates[i]+1
-                    else:
-                        temp[i]=coordinates[i]-1        
-        return temp
+        pr(self, userCoordinates, self._longestAxis, self._directionOfTravel)
+        beg=[userCoordinates[0],userCoordinates[1],userCoordinates[2],]
+        end=[userCoordinates[3],userCoordinates[4],userCoordinates[5],]
+        pr.generateRailCoordinates(self,beg,end,self._longestAxis,self._directionOfTravel)
+        self._newCmds = self.calculateTunnelParameters(self._userCoordinates, self._directionOfTravel, self._cmd1, self._cmd2, self._block1, self._block2, self._longestAxis)
+        # time.sleep(10)
+        # self.typeWritter(self._newCmds)
 
 
-# returns the longest axis 
-    def findLongestAxis(self, axis):
-        largest=''
-        if (axis[0] >= axis[1]) and (axis[0]>=axis[2]):
-            largest = 'x'
-        elif(axis[1]>=axis[0] and (axis[1]>=axis[2])):
-            largest = 'y'
-        else:
-            largest = 'z'
-        return largest
-
-
-    #sorts coordinates highest to lowest mainly to standardize the mather operations
-    def sortCoordinates(self,coordinates):
-        for i in range(0,3):
-            temp = coordinates[i]
-            if temp < coordinates[i+3]:
-                coordinates[i] = coordinates[i+3]
-                coordinates[i+3] = temp
-        return coordinates
-
-
-    #calculates the volume of the area to be worked
-    def calculateVolume(self, coordinates):
-        self._axis.append (coordinates[0] - coordinates[3])
-        self._axis.append(coordinates[1] - coordinates[4])
-        self._axis.append(coordinates[2] - coordinates[5])
-        return ((self._axis[0]+1)*(self._axis[1]+1)*(self._axis[2]+1))
-
-
-    def generateNegativeCoords(self, coordinates, axis, dir):
-        distance = 100
-        temp = []
-        if axis == 'x':
-            remainder = self._axis[0]%distance
-            coord1 = coordinates[0]
-            coord2 = coordinates[3]
-        elif axis == 'y':
-            remainder = self._axis[1]%distance
-            coord1 = coordinates[1]
-            coord2 = coordinates[4]
-
-        elif axis == 'z':
-            remainder = self._axis[2]%distance
-            coord1 = coordinates[2]
-            coord2 = coordinates[5]
-
-        # the code below will calculate northward travels
-        if remainder != 0:
-            for coord in range(coord1, coord2,-distance):
-                temp.append(coord)
-            
-            temp.append(temp[len(temp)-1]-remainder)
-        else:
-            for coord in range(coord1, coord2,-distance):
-                temp.append(coord)
-        return temp
-
-
-    def generatePositiveCoords(self,coordinates, axis, dir):
-        distance = 100
-        temp=[]
-        if axis == 'x':
-            remainder = self._axis[0]%distance
-            coord1 = coordinates[0]
-            coord2 = coordinates[3]
-        elif axis == 'y':
-            remainder = self._axis[1]%distance
-            coord1 = coordinates[1]
-            coord2 = coordinates[4]
-
-        elif axis == 'z':
-            remainder = self._axis[2]%distance
-            coord1 = coordinates[2]
-            coord2 = coordinates[5]
-
-        if remainder != 0:
-            for coord in range(coord1, coord2, -distance):
-                temp.append(coord)
-            temp.append(temp[len(temp)-1]-remainder)
-        else:
-            if dir == 'n' or dir == 'w':
-                for coord in range(coord1, coord2, distance):
-                    temp.append(coord)
-            elif dir == 's' or dir == 'e':
-                for coord in range(coord1, coord2, -distance):
-                    temp.append(coord)
-        return temp
-
-
-    def generateCommand(self, cmd, Coordinates, genCoordinates, block, axis):
+    def generateCommand(self, cmd, userCoordinates, generatedCoordinates, block, axis):
+        if userCoordinates == None or generatedCoordinates == None:
+            return
         command = ""
         commands=[]
-
         if axis == 'x':
-            for i in range(0,len(genCoordinates)-1):
-                command = cmd+" "+str(genCoordinates[i])+" "+str(Coordinates[1])+" "+str(Coordinates[2])+" "+str(genCoordinates[i+1])+" "+str(Coordinates[4])+" "+str(Coordinates[5])+" "+block
+            for i in range(0,len(generatedCoordinates)-1):
+                command = cmd+" "+str(generatedCoordinates[i])+" "+str(userCoordinates[1])+" "+str(userCoordinates[2])+" "+str(generatedCoordinates[i+1])+" "+str(userCoordinates[4])+" "+str(userCoordinates[5])+" "+block
                 commands.append(command)
         elif axis == 'y':
-            for i in range(0,len(genCoordinates)-1):
-                command = cmd+" "+str(Coordinates[0])+" "+str(genCoordinates[i])+" "+str(Coordinates[2])+" "+str(Coordinates[3])+" "+str(genCoordinates[i+1])+str(Coordinates[5])+" "+block
+            for i in range(0,len(generatedCoordinates)-1):
+                command = cmd+" "+str(userCoordinates[0])+" "+str(generatedCoordinates[i])+" "+str(userCoordinates[2])+" "+str(userCoordinates[3])+" "+str(generatedCoordinates[i+1])+str(userCoordinates[5])+" "+block
                 commands.append(command)
         elif axis == 'z':
-            for i in range(0,len(genCoordinates)-1):
-                command = cmd+" "+str(Coordinates[0])+" "+str(Coordinates[1])+" "+str(genCoordinates[i])+" "+str(Coordinates[3])+" "+str(Coordinates[4])+" "+str(genCoordinates[i+1])+" "+block
+            for i in range(0,len(generatedCoordinates)-1):
+                command = cmd+" "+str(userCoordinates[0])+" "+str(userCoordinates[1])+" "+str(generatedCoordinates[i])+" "+str(userCoordinates[3])+" "+str(userCoordinates[4])+" "+str(generatedCoordinates[i+1])+" "+block
                 commands.append(command)
         return commands
 
 
-    '''supposed to generate the
-    increments for tunnel boring'''
-    def generateCoordinates(self,coordinates, longestAxis, dir):
-        temp = []
-        if dir == 'n':#-z
-            temp = self.generateNegativeCoords(coordinates,longestAxis,dir)
-        elif dir == 's':#+z
-            temp = self.generatePositiveCoords(coordinates,longestAxis,dir)
-        elif dir == 'e':#+x
-            temp = self.generatePositiveCoords(coordinates,longestAxis,dir)
-        elif dir == 'w':#-x
-            temp = self.generateNegativeCoords(coordinates,longestAxis,dir)
-        elif dir == 'u':#+y
-            temp = self.generatePositiveCoords(coordinates,longestAxis,dir)
-        elif dir == 'd':#-y
-            temp = self.generateNegativeCoords(coordinates,longestAxis,dir)
-        return temp
-
-
-    def createTeleportCoords(self, coordinates, generatedCoordinates, axis, dir):
+    def createTeleportCoords(self, userCoordinates, generatedCoordinates, axis, dir):
+        if userCoordinates is None or generatedCoordinates is None:
+            return
         tpc=[]
         for i in range(len(generatedCoordinates)):
             if axis == 'z':
                 if dir == 'n':
                     if i == len(generatedCoordinates)-1:
                         return tpc
-                    tpc.append('teleport @p '+ str(coordinates[0])+ " " + str(coordinates[4])+ " " + str((generatedCoordinates[i+1]+1)))
-                    
+                    tpc.append('teleport @p '+ str(userCoordinates[0])+ " " + str(userCoordinates[4])+ " " + str((generatedCoordinates[i+1]+1))) 
                 elif dir == 's':
-                    tpc.append('teleport @p '+ str(coordinates[0])+ " " + str(coordinates[4])+ " " + str((generatedCoordinates[i]-1)))
+                    tpc.append('teleport @p '+ str(userCoordinates[0])+ " " + str(userCoordinates[4])+ " " + str((generatedCoordinates[i]-1)))
             elif axis == 'x':
                 if dir == 'e':
-                    tpc.append('teleport @p '+ str((generatedCoordinates[i]))+ " " + str(coordinates[4]) + " " + str((coordinates[2]+1)))
+                    tpc.append('teleport @p '+ str((generatedCoordinates[i]))+ " " + str(userCoordinates[4]) + " " + str((userCoordinates[2]+1)))
                 elif dir == 'w':
-                    tpc.append('teleport @p '+ str((generatedCoordinates[i]))+ " " + str(coordinates[4]) + " " + str(coordinates[2]))
-
+                    tpc.append('teleport @p '+ str((generatedCoordinates[i]))+ " " + str(userCoordinates[4]) + " " + str(userCoordinates[2]))
         return tpc
+        
 
-
-    def writeToFile(self,cmds):
-        newCmds = cmds
+    def writeToFile(self,cmds1,cmds2,cmds3,):
+        newCmds = []
         fh = open("commands.txt",'w')
-        for i in range(len(self._generatedCommands2)):
-            
-            fh.writelines(self._teleportCoordinates[i]+'\n')
-            fh.writelines(self._generatedCommands2[i]+'\n')
-            fh.writelines(self._generatedCommands[i]+'\n')
-            
+        for i in range(len(cmds2)):
+            newCmds.append(cmds1[i])
+            newCmds.append(cmds2[i])
+            newCmds.append(cmds3[i])
+            l1 = len(cmds1)
+            l2 = len(cmds2)
+            l3 = len(cmds3)
+            fh.writelines(cmds1[i]+'\n')
+            fh.writelines(cmds2[i]+'\n')
+            fh.writelines(cmds3[i]+'\n')
         fh.close()
 
 
-    def calculateTunnelParameters(self, coordinates, dir, cmd1, cmd2, block1, block2):
-        volume = self.calculateVolume(coordinates)
-        print("volumetric displacement: " + str(volume) + " blocks to be replaced")
-        longestAxis = self.findLongestAxis(self._axis)
-        self._coordinates2 = self.calculateLinedTunnelCoordinates(coordinates,dir)
-        self._generatedCoordinates2 = self.generateCoordinates(self._coordinates2,longestAxis,dir)
-        self._generatedCommands2 = self.generateCommand(cmd2,self._coordinates2, self._generatedCoordinates2,block2,longestAxis)
-        self._generatedCoordinates = self.generateCoordinates(coordinates,longestAxis,dir)
-        self._teleportCoordinates = self.createTeleportCoords(coordinates,self._generatedCoordinates,longestAxis, dir)
-        self._generatedCommands = self.generateCommand(cmd1,coordinates, self._generatedCoordinates,block1,longestAxis)
-        newCmds=[]
-        for i in range(len(self._generatedCommands2)):
-            newCmds.append(self._teleportCoordinates[i])
-            newCmds.append(self._generatedCommands2[i])
-            newCmds.append(self._generatedCommands[i])
-        self.writeToFile(newCmds)
+    def combineCommands(self,cmds1,cmds2,cmds3,):
+        newCmds = []
+        for i in range(len(cmds2)):
+            newCmds.append(cmds1[i])
+            newCmds.append(cmds2[i])
+            newCmds.append(cmds3[i])
         return newCmds
-        
+
+    def calculateTunnelParameters(self, userCoordinates, dir, cmd1, cmd2, block1, block2, longestAxis):
+        newCmds=[]
+        print("volumetric displacement: " + str(self._volume) + " blocks to be replaced")
+        self._tunnelLinning = c.calculateLinedTunnelCoordinates(self, userCoordinates, dir)
+        self._tunnelHollowingCoordinates = c.generateCoordinates(self, userCoordinates, longestAxis, dir, 100, 100)
+        self._tunnelHollowingCommands = self.generateCommand(cmd1, userCoordinates, self._tunnelHollowingCoordinates, block1, longestAxis)
+                
+        self._tunnelLinningCoordinates = c.generateCoordinates(self, self._tunnelLinning, longestAxis, dir, 100, 100)
+        self._tunnelLinningCommands = self.generateCommand(cmd2, self._tunnelLinning, self._tunnelLinningCoordinates, block2, longestAxis)
+        self._teleportCommands = self.createTeleportCoords(userCoordinates, self._tunnelHollowingCoordinates, longestAxis, dir)
+        cmds = self.combineCommands(self._teleportCommands, self._tunnelLinningCommands, self._tunnelHollowingCommands)
+        self.writeToFile(self._teleportCommands, self._tunnelLinningCommands, self._tunnelHollowingCommands)
+        self.typeWritter(cmds)
 
     def typeWritter(self, newCmds):
         time.sleep(10)
         delay = 5
         for i in range(len(newCmds)):
             print(newCmds[i])
-            #pyperclip.copy(newCmds[i])
             pyautogui.press(['/'])
             pyautogui.typewrite(newCmds[i],interval=0.01)
             pyautogui.press(['enter'])
