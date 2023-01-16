@@ -248,15 +248,15 @@ class Calculate:
 
         temp = []
         if dir == 'n':#-z
-            temp = self.generateNegativeCoords(userCoordinates, self._longestAxis, dir, increments, distance)
+            temp = Calculate.generateNegativeCoords(self, userCoordinates, self._longestAxis, dir, increments, distance)
         elif dir == 's':#+z
-            temp = self.generatePositiveCoords(userCoordinates, self._longestAxis, dir, increments, distance)
+            temp = Calculate.generatePositiveCoords(self, userCoordinates, self._longestAxis, dir, increments, distance)
         elif dir == 'e':#+x
-            temp = self.generatePositiveCoords(userCoordinates, self._longestAxis, dir, increments, distance)
+            temp = Calculate.generatePositiveCoords(self, userCoordinates, self._longestAxis, dir, increments, distance)
         elif dir == 'w':#-x
             temp = Calculate.generateNegativeCoords(self, userCoordinates, self._longestAxis, dir, increments, distance)
         elif dir == 'u':#+y
-            temp = self.generatePositiveCoords(userCoordinates, self._longestAxis, dir, increments, distance)
+            temp = Calculate.generatePositiveCoords(self, userCoordinates, self._longestAxis, dir, increments, distance)
         elif dir == 'd':#-y
-            temp = self.generateNegativeCoords(userCoordinates, self._longestAxis, dir, increments, distance)
+            temp = Calculate.generateNegativeCoords(self, userCoordinates, self._longestAxis, dir, increments, distance)
         return temp

@@ -55,8 +55,8 @@ from tunnel import Tunnel
 
 #                x   y    z     x   y    z
 #mycoordinates=[5318,113,-3326,5323,118,-3872]
-#mycoordinates=[5260,50,0, 5255,45,-30000]#north
+mycoordinates=[5260,45,30000, 5255,50,-30000]#north
 #mycoordinates=[5242, 45, 0, 5252, 50, 31000]#south
 #mycoordinates=[5253, 45, 0, 30000, 50, 10]#east
-mycoordinates=[3000000, 45, 0, -3000000, 50, 10] #west
-t = Tunnel('fill','fill', mycoordinates,'air','glass','w')
+#mycoordinates=[3000000, 45, 0, -3000000, 50, 10] #west
+t = Tunnel('fill','fill', mycoordinates,'air','glass','n')
